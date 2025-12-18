@@ -37,8 +37,6 @@ char* audioFileNames[] = {
   "click5_44.wav",
   "click5_55.wav",
   "click5_66.wav",
-  "l3arbi.mp3",
-  "charlie_scream_audio.wav",
 };
 
 void getTestWords(Test* test){

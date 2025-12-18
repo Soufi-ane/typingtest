@@ -1,5 +1,4 @@
 Flags = -Iinclude -lraylib  -lm -lpthread -ldl -lrt -lGL
-RayMediaFlags =  -lavcodec -lswresample -lavformat -lavutil -lswscale -lm
 Debug = -g -Wall
 InstallDir = /usr/local/bin
 FontsDir = /usr/local/share/fonts
@@ -21,11 +20,11 @@ install: $(OUT) fonts
 	fc-cache -fv
 
 $(OUT): $(SRC)
-	$(CC) -o $(OUT) $(SRC) $(Flags) $(RayMediaFlags) 
+	$(CC) -o $(OUT) $(SRC) $(Flags)
 
 debug : $(SRC)
 	# $(CC) -o $(OUT) $(SRC) $(Flags) $(Debug)
-	$(CC) -o $(OUT) $(SRC) $(Flags) $(RayMediaFlags) -g
+	$(CC) -o $(OUT) $(SRC) $(Flags)
 		
 fonts : 
 	mkdir -p $(FontsDir)

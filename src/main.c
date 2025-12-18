@@ -4,7 +4,6 @@
 #include <time.h>
 #include <string.h>
 #include <time.h>
-#include "raymedia.h"
 #include "type.h"
 
 void getResult(Test* test){
@@ -48,7 +47,6 @@ void handleKeys(Test* test,char* charState,Sound sounds[]) {
            || c != ' ' ) {
           charState[test->currentIndex] = 'F'; // for false 
           test->mistakeCount++;
-          PlaySound(sounds[7]);
         }
       } 
       if(test->currentChar < strlen(test->words[test->currentWord])){
@@ -81,8 +79,6 @@ void loadFontSDF(
 	UnloadFileData(fontFile) ;
 	SetTextureFilter(font->texture,TEXTURE_FILTER_BILINEAR);
 }
-
-
 
 int main() {
   Sound allSounds[SOUND_NUM];
@@ -120,17 +116,11 @@ int main() {
     Sound s = LoadSound(TextFormat("assets/%s",audioFileNames[i]));
     allSounds[i] = s;
   }
-  MediaStream media = LoadMedia("assets/charlie_scream.mp4");
 
   SetTargetFPS(60);
-  int hasPlayedCharlieSound = 0;
   while (!WindowShouldClose()) {
-    if(test.isFinished && !hasPlayedCharlieSound){
+    if(test.isFinished){
       getResult(&test);
-      if(test.accuracy == 1.0f){
-        PlaySound(allSounds[8]);
-        hasPlayedCharlieSound = 1;
-      } 
     } 
     if (test.mode != TYPING) {
       SetExitKey(KEY_Q);
@@ -163,10 +153,6 @@ int main() {
         }
       }
     } else {
-      if(test.accuracy == 1.0f){
-        UpdateMedia(&media);
-        DrawTextureEx(media.videoTexture, (Vector2){0,0}, 0.0f, 1.5f, WHITE);
-      }
       const char* accuracyText = TextFormat("Accuracy : %.2f %%",test.accuracy * 100);
       Vector2 accuracySize = MeasureTextEx(fontSDF, accuracyText, 90, 4);
       DrawTextEx(fontSDF, accuracyText ,
@@ -177,7 +163,6 @@ int main() {
     DrawTextEx(fontSDF, test.mode == NORMAL ? "NORMAL" : "TYPING" , (Vector2){15,7}, 44, 4, GRAY);
     EndDrawing();
   }
-  UnloadMedia(&media);
   CloseWindow();
   return 0;
 }
