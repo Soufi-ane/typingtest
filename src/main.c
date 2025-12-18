@@ -7,32 +7,52 @@
 #include "type.h"
 
 void getResult(Test* test){
+  printf("Mistakes : %d\n",test->mistakeCount);
   if(test->mistakeCount < 1) test->accuracy = 1.0f;
   else test->accuracy =  (float) (test->length - test->mistakeCount) / test->length;
+  float wordsTyped = (float) test->length / 5; 
+  float typingTime = test->finishedAt - test->startedAt;
+  float raw =  wordsTyped * (60 / typingTime);
+  test->rawWPM = raw;
+  printf("wpm = %.4f - %.4f * %.4f\n",raw , raw ,test->accuracy);
+  test->wpm = raw - raw * (1.0f - test->accuracy);
+}
+
+void reloadTest(Test* test,char* charState){
+   test->mode = TYPING;
+   test->currentChar = 0;
+   test->mistakeCount = 0;
+   test->currentIndex = 0;
+   test->currentWord = 0;
+   test->length = 0;
+   test->isFinished = 0;
+   getTestWords(test);
+   memset(charState,0,test->length * sizeof(char));
 }
 
 void handle_normal_mode_keys(Test* test,char c,char* charState){
   switch(c) {
     case 'i' : 
-      test->mode = TYPING;
+      if(!test->isFinished) {
+        test->mode = TYPING;
+        test->startedAt = GetTime();
+      } 
+      break;
     case 'r' : 
-      test->currentChar = 0;
-      test->currentIndex = 0;
-      test->currentWord = 0;
-      test->length = 0;
-      getTestWords(test);
-      memset(charState,0,test->length * sizeof(char));
-      test->isFinished = 0;
+      reloadTest(test,charState);
+      break;
   }
 }
 
 void handleKeys(Test* test,char* charState,Sound sounds[]) {
   if (IsKeyPressed(KEY_ESCAPE) || IsKeyPressed(KEY_CAPS_LOCK)) {
+    reloadTest(test,charState);
     test->mode = NORMAL;
   }
   int c; 
   if(test->length <= test->currentIndex && test->mode == TYPING){
     test->isFinished = 1;
+    test->finishedAt = GetTime();
     test->mode = NORMAL;
     return;
   }
@@ -143,6 +163,14 @@ int main() {
         }
         for(int j=0; j <= wordLength ;j++,x_offset++,charIndex++){
           if(test.words[i][j] == ' ') last_space = i;
+
+          if(test.currentIndex == charIndex){
+            DrawRectangle(
+              LINE_X_POSITION + 14 * x_offset,
+              LINE1_Y - TEXT_HEIGHT + (LINE_HEIGHT * y_offset),
+              14, 30, WHITE
+            );
+          }
           DrawTextCodepoint(fontSDF,
             j == wordLength ? ' ' : test.words[i][j],
             (Vector2){LINE_X_POSITION + 14 * x_offset,
@@ -154,10 +182,20 @@ int main() {
       }
     } else {
       const char* accuracyText = TextFormat("Accuracy : %.2f %%",test.accuracy * 100);
-      Vector2 accuracySize = MeasureTextEx(fontSDF, accuracyText, 90, 4);
+      const char* rawSpeedText = TextFormat("Raw speed : %.2f WPM",test.rawWPM);
+      const char* speedText = TextFormat("Speed : %.2f WPM",test.wpm);
+      Vector2 accuracySize = MeasureTextEx(fontSDF, accuracyText, 70, 4);
+      Vector2 rawSpeedSize = MeasureTextEx(fontSDF, rawSpeedText, 70, 4);
+      Vector2 speedSize = MeasureTextEx(fontSDF, speedText, 100, 4);
+      DrawTextEx(fontSDF, speedText ,
+       (Vector2){SCREEN_WIDTH / 2 - speedSize.x /2 , SCREEN_HEIGHT/ 2 - speedSize.y * 2},
+       100, 4, GREEN);
+      DrawTextEx(fontSDF, rawSpeedText ,
+       (Vector2){SCREEN_WIDTH / 2 - rawSpeedSize.x /2 , SCREEN_HEIGHT/ 2},
+       70, 4, GREEN);
       DrawTextEx(fontSDF, accuracyText ,
        (Vector2){SCREEN_WIDTH / 2 - accuracySize.x /2 , SCREEN_HEIGHT/ 2 + accuracySize.y},
-       90, 4, GREEN);
+       70, 4, GREEN);
     }
     // Mode
     DrawTextEx(fontSDF, test.mode == NORMAL ? "NORMAL" : "TYPING" , (Vector2){15,7}, 44, 4, GRAY);
