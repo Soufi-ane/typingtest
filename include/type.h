@@ -16,6 +16,8 @@
 #define ENGLISH_1K_WORDS_COUNT 1000
 #define ENGLISH_5K_WORDS_COUNT 4957
 #define ONE_WORD_LENGTH 5
+#define LONG_PRESS_DELAY 0.3f
+#define REPEAT_RATE 0.015f
 
 extern char* ENGLISH_WORDS[];
 extern char* ENGLISH_1K_WORDS[];
@@ -35,8 +37,6 @@ typedef enum {
 
 typedef struct test_ {
   int length;
-  int currentChar;
-  int currentWord;
   int currentIndex;
   int mistakeCount;
   double startedAt;
@@ -46,12 +46,12 @@ typedef struct test_ {
   float accuracy;
   float rawWPM;
   float wpm;
-  char* words[TOTAL_WORDS_NUM];
+  char* text;
   Mode mode;
   Lang lang;
 } Test;
 
-void getTestWords(Test* test);
+void getTestContent(Test* test);
 
 #endif
 

@@ -863,29 +863,32 @@ char* audioFileNames[] = {
   "click5_66.wav",
 };
 
-void getTestWords(Test* test){
-
+void getTestContent(Test* test){
+  test->text = malloc(sizeof(char) * 10000);
   int total_word_count = ENGLISH_WORDS_COUNT;
   if(test->lang == ENGLISH_1K) total_word_count = ENGLISH_1K_WORDS_COUNT;
   else if(test->lang == ENGLISH_5K) total_word_count = ENGLISH_5K_WORDS_COUNT;
 
+  char** words_arr = ENGLISH_WORDS; 
+  if(test->lang == ENGLISH_1K) words_arr = ENGLISH_1K_WORDS;
+  else if(test->lang == ENGLISH_5K) words_arr = ENGLISH_5K_WORDS;
   int count = 0;
-    for(int i = 0; i < WORDS_COUNT; i++){
-      int randomIndex = rand() % total_word_count;
-      if(test->lang == ENGLISH_1K){
-        test->words[i] = ENGLISH_1K_WORDS[randomIndex];
-        count += strlen(ENGLISH_1K_WORDS[randomIndex]);
-      }
-      else if(test->lang == ENGLISH_5K){
-        test->words[i] = ENGLISH_5K_WORDS[randomIndex];
-        count += strlen(ENGLISH_5K_WORDS[randomIndex]);
-      } 
-      else {
-        test->words[i] = ENGLISH_WORDS[randomIndex];
-        count += strlen(ENGLISH_WORDS[randomIndex]);
-      }
+  for(int i = 0; i < WORDS_COUNT; i++){
+    int randomIndex = rand() % total_word_count;
+    for(int j=0; j < strlen(words_arr[randomIndex]); j++){
+      test->text[count++] = words_arr[randomIndex][j];
+      
     }
-  count += WORDS_COUNT - 1; 
-
+    test->text[count++] = ' ';
+  }
   test->length = count;
 }
+
+
+
+
+
+
+
+
+
