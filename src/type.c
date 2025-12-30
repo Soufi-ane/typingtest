@@ -863,8 +863,21 @@ char* audioFileNames[] = {
   "click5_66.wav",
 };
 
+char* fontNames[] = { 
+  "FiraCode-Regular.ttf",
+  "JetBrainsMonoNF.ttf",
+  "IosevkaNerdFont-Regular.ttf",
+  "AdwaitaMonoNerdFontMono-Regular.ttf",
+};
+char* fontDisplayNames[] = {
+  "Fira Code",
+  "JetBrains Mono",
+  "Iosevka",
+  "Adwaita Mono",
+};
+
 void getTestContent(Test* test){
-  test->text = malloc(sizeof(char) * 10000);
+  test->text = malloc(sizeof(char) * 1024 * 100);
   int total_word_count = ENGLISH_WORDS_COUNT;
   if(test->lang == ENGLISH_1K) total_word_count = ENGLISH_1K_WORDS_COUNT;
   else if(test->lang == ENGLISH_5K) total_word_count = ENGLISH_5K_WORDS_COUNT;
@@ -873,20 +886,49 @@ void getTestContent(Test* test){
   if(test->lang == ENGLISH_1K) words_arr = ENGLISH_1K_WORDS;
   else if(test->lang == ENGLISH_5K) words_arr = ENGLISH_5K_WORDS;
   int count = 0;
-  for(int i = 0; i < WORDS_COUNT; i++){
+  for(int i = 0; i < test->numWords; i++){
     int randomIndex = rand() % total_word_count;
-    for(int j=0; j < strlen(words_arr[randomIndex]); j++){
+    for(size_t j=0; j < strlen(words_arr[randomIndex]); j++){
       test->text[count++] = words_arr[randomIndex][j];
-      
     }
-    test->text[count++] = ' ';
+    if(i < test->numWords - 1) test->text[count++] = ' ';
   }
   test->length = count;
 }
 
 
+int loadFontSDF(
+		char* path,
+		int* fileSize,
+		int size,
+		Font* font
+){
+	unsigned char* fontFile = LoadFileData(path,fileSize);
+	if(fontFile == NULL || fontFile == 0) return 1; 
+	font->baseSize = size;
+	font->glyphCount = 95;
+	font->glyphs = LoadFontData(fontFile,*fileSize,size,0,0,FONT_SDF);
+	Image atlas = GenImageFontAtlas(font->glyphs,&font->recs,95,size,0,1);
+	font->texture = LoadTextureFromImage(atlas);
+	UnloadImage(atlas);
+	UnloadFileData(fontFile) ;
+	SetTextureFilter(font->texture,TEXTURE_FILTER_BILINEAR);
+  return 0;
+}
 
 
+void loadAllFonts(FontData* fonts){
+  for(int i=0; i<FONTS_NUM; i++){
+    fonts[i].name = fontDisplayNames[i];
+    fonts[i].fileSize = 0;
+    char path[1024];
+    Font fontSDF = {0};
+    sprintf(path,"/usr/local/share/fonts/%s",fontNames[i]);
+    int fontError = loadFontSDF(path, &fonts[i].fileSize, 128, &fontSDF);
+    if(fontError) printf("failed to load font %s\n",path);
+    fonts[i].font = fontSDF;
+  }
+}
 
 
 

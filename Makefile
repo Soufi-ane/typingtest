@@ -1,36 +1,45 @@
-Flags = -Iinclude -lraylib  -lm -lpthread -ldl -lrt -lGL
-Debug = -g -Wall
-InstallDir = /usr/local/bin
-FontsDir = /usr/local/share/fonts
-AssetsDir = ./assets
-FontName = JetBrainsMonoNF.ttf
+FLAGS = -Iinclude -lraylib  -lm -lpthread -ldl -lrt -lGL
+PRODUCTION_FLAGS = -DRELEASE -O3 -s -DRELEASE -DNDEBUG -march=native 
+EXTRA_FLAGS = -Wall -Wextra -Werror -Wpedantic 
+
+INSTALL_DIR = /usr/local/bin
+FONTS_DIR   = /usr/local/share/typingtest/fonts
+ICONS_DIR   = /usr/local/share/typingtest/icons
+AUDIOS_DIR  = /usr/local/share/typingtest/audios
+HOME_DIR   = $(shell getent passwd $(SUDO_USER) | cut -d: -f6)
+LOG_DIR     = $(HOME_DIR)/.local/share/typingtest
 
 CC = gcc
 SRC = src/*.c
 OUT = build/type
+RELEASE = build/release/typingtest
 
 all: $(OUT)
 
-run : $(OUT)
+run : clean $(OUT)
 	./$(OUT)
 
-install: $(OUT) fonts 
-	mkdir -p $(InstallDir)
-	cp $(OUT) $(InstallDir)
-	fc-cache -fv
+install: $(RELEASE) appdata
+	mkdir -p $(INSTALL_DIR) $(LOG_DIR)
+	chown $(SUDO_USER):$(SUDO_USER) $(LOG_DIR)
+	cp $(RELEASE) $(INSTALL_DIR)
 
 $(OUT): $(SRC)
-	$(CC) -o $(OUT) $(SRC) $(Flags)
+	$(CC) -o $(OUT) $(SRC) $(FLAGS)
 
-debug : $(SRC)
-	# $(CC) -o $(OUT) $(SRC) $(Flags) $(Debug)
-	$(CC) -o $(OUT) $(SRC) $(Flags)
+$(RELEASE) : clean $(SRC)
+	$(CC)  $(PRODUCTION_FLAGS) \
+		-o $(RELEASE) $(SRC)  $(FLAGS) $(EXTRA_FLAGS)
+
+debug : clean $(SRC)
+	$(CC) -g -o $(OUT) $(SRC) $(FLAGS) $(EXTRA_FLAGS)
 		
-fonts : 
-	mkdir -p $(FontsDir)
-	cp $(AssetsDir)/fonts/$(FontName) $(FontsDir)
+appdata : 
+	mkdir -p $(FONTS_DIR) $(ICONS_DIR) $(AUDIOS_DIR)
+	cp ./assets/fonts/* $(FONTS_DIR)
+	cp ./assets/icons/* $(ICONS_DIR)
+	cp ./assets/audios/* $(AUDIOS_DIR)
 
 clean:
-	rm -f $(OUT)
-
+	rm -f $(OUT) $(RELEASE)
 
