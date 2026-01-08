@@ -923,7 +923,7 @@ void loadAllFonts(FontData* fonts){
     fonts[i].fileSize = 0;
     char path[1024];
     Font fontSDF = {0};
-    sprintf(path,"/usr/local/share/fonts/%s",fontNames[i]);
+    sprintf(path,"/usr/local/share/typingtest/fonts/%s",fontNames[i]);
     int fontError = loadFontSDF(path, &fonts[i].fileSize, 128, &fontSDF);
     if(fontError) printf("failed to load font %s\n",path);
     fonts[i].font = fontSDF;
