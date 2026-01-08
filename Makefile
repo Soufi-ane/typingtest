@@ -20,7 +20,7 @@ run : clean $(OUT)
 	./$(OUT)
 
 install: $(RELEASE) appdata
-	mkdir -p build/release/typingtest
+	mkdir -p build/release/
 	mkdir -p $(INSTALL_DIR) $(LOG_DIR)
 	chown $(SUDO_USER):$(SUDO_USER) $(LOG_DIR)
 	cp $(RELEASE) $(INSTALL_DIR)

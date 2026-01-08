@@ -897,12 +897,7 @@ void getTestContent(Test* test){
 }
 
 
-int loadFontSDF(
-		char* path,
-		int* fileSize,
-		int size,
-		Font* font
-){
+int loadFontSDF(char* path, int* fileSize, int size, Font* font){
 	unsigned char* fontFile = LoadFileData(path,fileSize);
 	if(fontFile == NULL || fontFile == 0) return 1; 
 	font->baseSize = size;
