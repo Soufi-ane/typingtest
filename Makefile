@@ -11,7 +11,7 @@ LOG_DIR     = $(HOME_DIR)/.local/share/typingtest
 
 CC = gcc
 SRC = src/*.c
-OUT = build/type
+OUT = build/typingtest
 RELEASE = build/release/typingtest
 
 all: $(OUT)
@@ -20,12 +20,13 @@ run : clean $(OUT)
 	./$(OUT)
 
 install: $(RELEASE) appdata
-	mkdir -p $(RELEASE)
+	mkdir -p build/release/typingtest
 	mkdir -p $(INSTALL_DIR) $(LOG_DIR)
 	chown $(SUDO_USER):$(SUDO_USER) $(LOG_DIR)
 	cp $(RELEASE) $(INSTALL_DIR)
 
 $(OUT): $(SRC)
+	mkdir -p build/release/typingtest
 	$(CC) -o $(OUT) $(SRC) $(FLAGS)
 
 $(RELEASE) : clean $(SRC)
