@@ -4,6 +4,9 @@
 #include <stdbool.h>
 #include <raylib.h>
 
+#define MAX(a, b) ((a)>(b)? (a) : (b))
+#define MIN(a, b) ((a)<(b)? (a) : (b))
+
 #define SCREEN_WIDTH 1920
 #define SCREEN_HEIGHT 1080
 #define LINE_HEIGHT 47

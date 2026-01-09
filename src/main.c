@@ -1,4 +1,5 @@
 #include <raylib.h>
+#include <raymath.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -217,7 +218,10 @@ int main() {
   }
 
   // int fileSize = 0;
+  SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT);
   InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Type");
+  RenderTexture2D target = LoadRenderTexture(SCREEN_WIDTH, SCREEN_HEIGHT);
+  SetTextureFilter(target.texture, TEXTURE_FILTER_BILINEAR);
   // Font fontSDF = {0};
   FontData fonts[FONTS_NUM];
   fonts[0].name = fontDisplayNames[0];
@@ -268,6 +272,7 @@ int main() {
 
   SetTargetFPS(60);
   while (!WindowShouldClose()) {
+  float scale = MIN((float)GetScreenWidth()/SCREEN_WIDTH, (float)GetScreenHeight()/SCREEN_HEIGHT);
     if(!hasLoadFonts){
       loadAllFonts(test.fonts);
       hasLoadFonts = true;
@@ -285,7 +290,7 @@ int main() {
       SetExitKey(KEY_NULL);
     }
     handleKeys(&test,charState,allSounds);
-    BeginDrawing();
+    BeginTextureMode(target);
     ClearBackground(BLACK);
     int y_offset = 0;
     if(!test.isFinished){
@@ -364,10 +369,19 @@ int main() {
     } else {
       DrawTextureEx(noSoundTexture, (Vector2){ SCREEN_WIDTH - 100, 40 }, 0.0f, 1.0f, WHITE);
     }
+    EndTextureMode();
+    BeginDrawing();
+    ClearBackground(BLACK);
+    DrawTexturePro(target.texture, 
+      (Rectangle){ 0.0f, 0.0f, (float)target.texture.width, (float)-target.texture.height },
+      (Rectangle){ (GetScreenWidth() - ((float)SCREEN_WIDTH * scale)) * 0.5f, 
+                   (GetScreenHeight() - ((float)SCREEN_HEIGHT * scale)) * 0.5f, 
+                   (float)SCREEN_WIDTH * scale, (float)SCREEN_HEIGHT * scale }, 
+      (Vector2){ 0, 0 }, 0.0f, WHITE);
     EndDrawing();
   }
-
-  // for(int i=0; i < FONTS_NUM; i++) UnloadFont(fonts[i].font);
+  UnloadRenderTexture(target);
+  for(int i=0; i < FONTS_NUM; i++) UnloadFont(fonts[i].font);
   for(int i=0; i < SOUND_NUM; i++) UnloadSound(allSounds[i]);
   CloseWindow();
   return 0;
