@@ -1,5 +1,5 @@
 FLAGS = -Iinclude -lraylib  -lm -lpthread -ldl -lrt -lGL
-PRODUCTION_FLAGS = -DRELEASE -O3 -s -DRELEASE -DNDEBUG -march=native 
+PRODUCTION_FLAGS = -DRELEASE -O3 -s -DNDEBUG -march=native 
 EXTRA_FLAGS = -Wall -Wextra -Werror -Wpedantic 
 
 INSTALL_DIR = /usr/local/bin
@@ -26,12 +26,12 @@ install: $(RELEASE) appdata
 	cp $(RELEASE) $(INSTALL_DIR)
 
 $(OUT): $(SRC)
-	mkdir -p build/release/typingtest
+	mkdir -p build/release/
 	$(CC) -o $(OUT) $(SRC) $(FLAGS)
 
 $(RELEASE) : clean $(SRC)
-	$(CC)  $(PRODUCTION_FLAGS) \
-		-o $(RELEASE) $(SRC)  $(FLAGS) $(EXTRA_FLAGS)
+	$(CC) $(PRODUCTION_FLAGS) \
+		-o $(RELEASE) $(SRC) $(FLAGS) $(EXTRA_FLAGS)
 
 debug : clean $(SRC)
 	$(CC) -g -o $(OUT) $(SRC) $(FLAGS) $(EXTRA_FLAGS)
