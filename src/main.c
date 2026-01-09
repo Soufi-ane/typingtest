@@ -59,7 +59,7 @@ void reloadTest(Test* test,char* charState){
    test->length = 0;
    test->isNewRecord = false;
    getTestContent(test);
-   memset(charState,0,test->length * sizeof(char));
+   memset(charState,0,sizeof(char) * 1024 * 100);
 }
 
 void handle_normal_mode_keys(Test* test,char c,char* charState){
@@ -238,8 +238,7 @@ int main() {
   fonts[0].font = fontSDF;
   test.fonts = fonts;
 
-  char* charState = malloc(test.length * sizeof(char));
-  memset(charState,0,test.length * sizeof(char));
+  char* charState = calloc(1024 * 100,sizeof(char));
 
   SetConfigFlags(FLAG_MSAA_4X_HINT);
   SetExitKey(KEY_NULL);
