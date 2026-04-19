@@ -183,34 +183,47 @@ float* readScores(FILE** resultFile,const char* name,int* num_scores){
   }
   return scores;
 }
+void UpdateDrawFrame();
+const char *home;
+char *filePath;
+FILE* resultFile;
+float highest_score = 0.0f;
+float * scores;
+int num_scores = 0;
+
+Test test = {
+  .mode = NORMAL,
+  .lang = ENGLISH,
+  .numWords = WORDS_COUNT,
+};
+FontData fonts[FONTS_NUM];
+Sound allSounds[SOUND_NUM];
+char path[1024];
+Font fontSDF = {0};
+char* charState;
+Image soundImage;
+Image noSoundImage;
+Texture2D soundTexture;
+Texture2D noSoundTexture;
+RenderTexture2D target;
 
 int main() {
+
 #ifdef RELEASE
-  const char *home = getenv("HOME");
+  home = getenv("HOME");
   if (home == NULL) {
     fprintf(stderr, "Error: Could not find HOME environment variable\n");
     return 1;
   }
-  char filePath[1024];
   snprintf(filePath, sizeof(filePath), "%s/.local/share/typingtest/typingtest.log", home);
 #else
   const char* filePath = "results";
 #endif
   printf("logs file : %s\n",filePath);
-  Sound allSounds[SOUND_NUM];
   srand(time(NULL));
-  Test test = {
-    .mode = NORMAL,
-    .lang = ENGLISH,
-    .numWords = WORDS_COUNT,
-  };
 
   getTestContent(&test);
 
-  FILE* resultFile;
-  float highest_score = 0.0f;
-  float * scores;
-  int num_scores = 0;
 
   scores = readScores(&resultFile,filePath,&num_scores);
   if(scores != NULL && num_scores){
@@ -220,14 +233,11 @@ int main() {
   // int fileSize = 0;
   SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT);
   InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Type");
-  RenderTexture2D target = LoadRenderTexture(SCREEN_WIDTH, SCREEN_HEIGHT);
+  target = LoadRenderTexture(SCREEN_WIDTH, SCREEN_HEIGHT);
   SetTextureFilter(target.texture, TEXTURE_FILTER_BILINEAR);
   // Font fontSDF = {0};
-  FontData fonts[FONTS_NUM];
   fonts[0].name = fontDisplayNames[0];
   fonts[0].fileSize = 0;
-  char path[1024];
-  Font fontSDF = {0};
 #ifdef RELEASE
   sprintf(path,"/usr/local/share/typingtest/fonts/%s",fontNames[0]);
 #else
@@ -238,7 +248,7 @@ int main() {
   fonts[0].font = fontSDF;
   test.fonts = fonts;
 
-  char* charState = calloc(1024 * 100,sizeof(char));
+  charState = calloc(1024 * 100,sizeof(char));
 
   SetConfigFlags(FLAG_MSAA_4X_HINT);
   SetExitKey(KEY_NULL);
@@ -254,8 +264,6 @@ int main() {
     allSounds[i] = s;
   }
 
-  Image soundImage;
-  Image noSoundImage;
 #ifdef RELEASE
   soundImage = LoadImage("/usr/local/share/typingtest/icons/sound.png"); 
   noSoundImage = LoadImage("/usr/local/share/typingtest/icons/no-sound.png"); 
@@ -264,13 +272,30 @@ int main() {
   noSoundImage = LoadImage("assets/icons/no-sound.png"); 
 #endif
 
-  Texture2D soundTexture = LoadTextureFromImage(soundImage);
-  Texture2D noSoundTexture = LoadTextureFromImage(noSoundImage);
+  soundTexture = LoadTextureFromImage(soundImage);
+  noSoundTexture = LoadTextureFromImage(noSoundImage);
   UnloadImage(soundImage);
   UnloadImage(noSoundImage);
 
-  SetTargetFPS(60);
-  while (!WindowShouldClose()) {
+#if defined(PLATFORM_WEB)
+#include <emscripten/emscripten.h>
+    emscripten_set_main_loop(UpdateDrawFrame, 0, 1);
+#else
+    SetTargetFPS(60);
+    while (!WindowShouldClose()) {
+        UpdateDrawFrame();
+    }
+#endif
+
+  UnloadRenderTexture(target);
+  for(int i=0; i < FONTS_NUM; i++) UnloadFont(fonts[i].font);
+  for(int i=0; i < SOUND_NUM; i++) UnloadSound(allSounds[i]);
+  CloseWindow();
+  return 0;
+}
+
+
+void UpdateDrawFrame(){
   float scale = MIN((float)GetScreenWidth()/SCREEN_WIDTH, (float)GetScreenHeight()/SCREEN_HEIGHT);
     if(!hasLoadFonts){
       loadAllFonts(test.fonts);
@@ -378,10 +403,4 @@ int main() {
                    (float)SCREEN_WIDTH * scale, (float)SCREEN_HEIGHT * scale }, 
       (Vector2){ 0, 0 }, 0.0f, WHITE);
     EndDrawing();
-  }
-  UnloadRenderTexture(target);
-  for(int i=0; i < FONTS_NUM; i++) UnloadFont(fonts[i].font);
-  for(int i=0; i < SOUND_NUM; i++) UnloadSound(allSounds[i]);
-  CloseWindow();
-  return 0;
 }

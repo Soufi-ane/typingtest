@@ -1,0 +1,28 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Iinclude",
+      "-o",
+      "build/typingtest",
+      "src/main.c"
+    ],
+    "directory": "/home/soufiane/proj/typingtest",
+    "file": "/home/soufiane/proj/typingtest/src/main.c",
+    "output": "/home/soufiane/proj/typingtest/build/typingtest"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Iinclude",
+      "-o",
+      "build/typingtest",
+      "src/type.c"
+    ],
+    "directory": "/home/soufiane/proj/typingtest",
+    "file": "/home/soufiane/proj/typingtest/src/type.c",
+    "output": "/home/soufiane/proj/typingtest/build/typingtest"
+  }
+]
