@@ -8,16 +8,28 @@ ICONS_DIR   = /usr/local/share/typingtest/icons
 AUDIOS_DIR  = /usr/local/share/typingtest/audios
 HOME_DIR   = $(shell getent passwd $(SUDO_USER) | cut -d: -f6)
 LOG_DIR     = $(HOME_DIR)/.local/share/typingtest
+RAYLIB_SRC=/home/soufiane/.local/git/raylib/src
+HTML_FILE=raylib_shell.html
+WEB_BUILD=
 
 CC = gcc
 SRC = src/*.c
 OUT = build/typingtest
 RELEASE = build/release/typingtest
+WEB_BUILD=index.html index.js index.data index.wasm
 
 all: $(OUT)
 
 run : clean $(OUT)
 	./$(OUT)
+
+web: $(WEB_BUILD)
+
+$(WEB_BUILD): $(SRC) 
+	emcc $(SRC) -o index.html -I. -Iinclude -I$(RAYLIB_SRC) \
+		-L. -L$(RAYLIB_SRC) -lraylib -s USE_GLFW=3 -s ASYNCIFY \
+		-DPLATFORM_WEB --shell-file $(HTML_FILE) --preload-file \
+		assets -s INITIAL_MEMORY=134217728 -Os
 
 install: $(RELEASE) appdata
 	mkdir -p build/release/
@@ -43,5 +55,5 @@ appdata :
 	cp ./assets/audios/* $(AUDIOS_DIR)
 
 clean:
-	rm -f $(OUT) $(RELEASE)
+	rm -f $(OUT) $(RELEASE) $(WEB_BUILD)
 

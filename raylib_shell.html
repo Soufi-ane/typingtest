@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="EN-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>raylib web game</title>
+    <meta name="viewport" content="width=device-width">
+
+    <style>
+      body { 
+        margin: 0; 
+        background-color: black; 
+        overflow: hidden; 
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        width: 100vw;
+      }
+
+      canvas.emscripten { 
+        border: 0px none; 
+        background-color: black;
+        display: block;
+      }
+
+      #status {
+        position: absolute;
+        color: white;
+        font-family: arial;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="status">Downloading...</div>
+    <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
+
+    <script type='text/javascript'>
+        var statusElement = document.querySelector('#status');
+        var Module = {
+            preRun: [],
+            postRun: [],
+            print: (function() {
+                return function(text) {
+                    if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
+                    console.log(text);
+                };
+            })(),
+            printErr: function(text) {
+                if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
+                console.error(text);
+            },
+            canvas: (function() {
+                var canvas = document.querySelector('#canvas');
+                canvas.addEventListener("webglcontextlost", function(e) { alert('WebGL context lost. You will need to reload the page.'); e.preventDefault(); }, false);
+                return canvas;
+            })(),
+setStatus: function(text) {
+    if (!Module.setStatus.last) Module.setStatus.last = { time: Date.now(), text: '' };
+    if (text === Module.setStatus.last.text) return;
+    
+    Module.setStatus.last.time = Date.now();
+    Module.setStatus.last.text = text;
+
+    if (text) {
+        statusElement.innerHTML = text;
+        statusElement.style.display = 'block';
+    } else {
+        // If text is empty or null, the game has started
+        statusElement.innerHTML = '';
+        statusElement.style.display = 'none';
+    }
+},
+            totalDependencies: 0,
+            monitorRunDependencies: function(left) {
+                this.totalDependencies = Math.max(this.totalDependencies, left);
+                Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies-left) + '/' + this.totalDependencies + ')' : '');
+            }
+        };
+        Module.setStatus('Downloading...');
+    </script>
+    
+    {{{ SCRIPT }}}
+  </body>
+</html>
