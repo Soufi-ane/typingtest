@@ -1,6 +1,5 @@
 #ifndef TYPE_H
 #define TYPE_H
-#include <time.h>
 #include <stdbool.h>
 #include <raylib.h>
 
