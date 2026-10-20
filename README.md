@@ -1,6 +1,5 @@
 
 # Typingtest
-#### type random words to get dopamine hits instead of doing real work
 
 ![Test Preview](assets/demo.png)
 
